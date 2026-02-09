@@ -242,24 +242,41 @@ prog
   });
 
 prog
-  .command("add <index>")
-  .description("Add a station from the last search to favorites")
-  .action(async (idxStr: string) => {
-    const idx = Number(idxStr) - 1;
-    if (Number.isNaN(idx) || idx < 0) {
-      console.error("Index must be a positive integer.");
-      process.exit(1);
+  .command("add [index]")
+  .description("Add a station to favorites (by search index, or current station if omitted)")
+  .action(async (idxStr?: string) => {
+    let st: any;
+
+    if (idxStr) {
+      // Add by index from last search/favs cache
+      const idx = Number(idxStr) - 1;
+      if (Number.isNaN(idx) || idx < 0) {
+        console.error("Index must be a positive integer.");
+        process.exit(1);
+      }
+      if (!existsSync(CACHE)) {
+        console.error("No cached search - run `radio search ...` first.");
+        process.exit(1);
+      }
+      const stations = JSON.parse(readFileSync(CACHE, "utf8"));
+      st = stations[idx];
+      if (!st) {
+        console.error(`No station at index ${idx + 1}. (${stations.length} results cached)`);
+        process.exit(1);
+      }
+    } else {
+      // No index -- add the currently playing station
+      if (!existsSync(LAST_PLAYED)) {
+        console.error("Nothing is playing. Play a station first or specify an index.");
+        process.exit(1);
+      }
+      st = JSON.parse(readFileSync(LAST_PLAYED, "utf8"));
+      if (!st || !st.stationuuid) {
+        console.error("Nothing is playing. Play a station first or specify an index.");
+        process.exit(1);
+      }
     }
-    if (!existsSync(CACHE)) {
-      console.error("No cached search - run `radio search ...` first.");
-      process.exit(1);
-    }
-    const stations = JSON.parse(readFileSync(CACHE, "utf8"));
-    const st = stations[idx];
-    if (!st) {
-      console.error(`No station at index ${idx + 1}. (${stations.length} results cached)`);
-      process.exit(1);
-    }
+
     const data = await daemonPost("/api/favs/add", st);
     if (data.added) {
       console.log(`Added to favorites: ${st.name}`);
