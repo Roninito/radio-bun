@@ -1,0 +1,21 @@
+{
+  "name": "radio-bun",
+  "version": "0.1.0",
+  "description": "Internet radio CLI + HTTP manager (Bun + MPV)",
+  "type": "module",
+  "main": "./src/cli.ts",
+  "bin": {
+    "radio": "./src/cli.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/cli.ts",
+    "build": "bun build src/cli.ts --compile --outfile=radio",
+    "serve": "bun run src/server.ts"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "node-mpv": "^1.5.0"
+  },
+  "author": "",
+  "license": "MIT"
+}
