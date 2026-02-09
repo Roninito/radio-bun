@@ -218,6 +218,74 @@ prog
   });
 
 // ---------------------------------------------------
+//  FAVORITES
+// ---------------------------------------------------
+prog
+  .command("favs")
+  .description("List favorite stations")
+  .action(async () => {
+    const favs = await daemonGet("/api/favs");
+    if (!favs.length) {
+      console.log("No favorites yet. Use  radio add <num>  after a search.");
+      return;
+    }
+    favs.forEach((s: any, i: number) => {
+      const num = String(i + 1).padStart(2, " ");
+      const bitrate = s.bitrate ? `${s.bitrate}k` : "?k";
+      console.log(`  ${num}) ${s.name}  [${s.country}]  ${s.codec}/${bitrate}`);
+    });
+    console.log(`\n${favs.length} favorite(s). Use  radio play <num>  after  radio favs  to play.`);
+
+    // Cache favorites so `radio play <num>` can pick them up
+    ensureCacheDir();
+    writeFileSync(CACHE, JSON.stringify(favs, null, 2));
+  });
+
+prog
+  .command("add <index>")
+  .description("Add a station from the last search to favorites")
+  .action(async (idxStr: string) => {
+    const idx = Number(idxStr) - 1;
+    if (Number.isNaN(idx) || idx < 0) {
+      console.error("Index must be a positive integer.");
+      process.exit(1);
+    }
+    if (!existsSync(CACHE)) {
+      console.error("No cached search - run `radio search ...` first.");
+      process.exit(1);
+    }
+    const stations = JSON.parse(readFileSync(CACHE, "utf8"));
+    const st = stations[idx];
+    if (!st) {
+      console.error(`No station at index ${idx + 1}. (${stations.length} results cached)`);
+      process.exit(1);
+    }
+    const data = await daemonPost("/api/favs/add", st);
+    if (data.added) {
+      console.log(`Added to favorites: ${st.name}`);
+    } else {
+      console.log(`Already in favorites: ${st.name}`);
+    }
+  });
+
+prog
+  .command("remove <index>")
+  .description("Remove a station from favorites by its number in `radio favs`")
+  .action(async (idxStr: string) => {
+    const idx = Number(idxStr) - 1;
+    if (Number.isNaN(idx) || idx < 0) {
+      console.error("Index must be a positive integer.");
+      process.exit(1);
+    }
+    const data = await daemonPost("/api/favs/remove", { index: idx });
+    if (data.ok) {
+      console.log(`Removed from favorites: ${data.removed}`);
+    } else {
+      console.error(data.error ?? "Failed to remove");
+    }
+  });
+
+// ---------------------------------------------------
 //  QUIT  (shuts down the daemon + MPV)
 // ---------------------------------------------------
 prog

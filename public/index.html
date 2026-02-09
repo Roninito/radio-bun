@@ -104,7 +104,17 @@
     }
     .volume-group span { font-size: 12px; color: #888; min-width: 28px; text-align: right; }
 
-    /* Results */
+    /* Section headings */
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #555;
+      padding: 0 2px 6px;
+    }
+
+    /* Results / Favorites list */
     .results-list { display: flex; flex-direction: column; gap: 4px; }
     .result-row {
       display: flex;
@@ -123,6 +133,17 @@
     .r-num { font-size: 12px; color: #555; min-width: 24px; text-align: right; }
     .r-name { flex: 1; font-size: 14px; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .r-meta { font-size: 12px; color: #555; flex-shrink: 0; }
+
+    /* Fav star button */
+    .r-fav {
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; padding: 2px 4px; line-height: 1;
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+    .r-fav:hover { transform: scale(1.25); }
+    .r-fav.is-fav { color: #f59e0b; }
+    .r-fav:not(.is-fav) { color: #444; }
 
     .empty-state { text-align: center; padding: 48px 0; color: #444; font-size: 14px; }
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #444; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.6s linear infinite; }
@@ -145,11 +166,11 @@
   <div class="now-playing hidden" id="np">
     <div class="np-info">
       <div class="np-label">Now Playing</div>
-      <div class="np-title" id="npTitle">—</div>
+      <div class="np-title" id="npTitle">--</div>
     </div>
     <div class="np-controls">
-      <button id="pauseBtn" title="Pause">⏸</button>
-      <button id="stopBtn" title="Stop">⏹</button>
+      <button id="pauseBtn" title="Pause">&#x23F8;</button>
+      <button id="stopBtn" title="Stop">&#x23F9;</button>
       <div class="volume-group">
         <label>Vol</label>
         <input type="range" id="volSlider" min="0" max="100" value="100" />
@@ -158,6 +179,7 @@
     </div>
   </div>
 
+  <div id="favSection"></div>
   <div id="results"></div>
 </main>
 
@@ -165,6 +187,7 @@
   const $ = (s) => document.querySelector(s);
   const qInput = $("#q");
   const searchBtn = $("#searchBtn");
+  const favSection = $("#favSection");
   const resultsDiv = $("#results");
   const np = $("#np");
   const npTitle = $("#npTitle");
@@ -173,8 +196,81 @@
   const volSlider = $("#volSlider");
   const volVal = $("#volVal");
 
-  let stations = [];
-  let activeIdx = -1;
+  let stations = [];      // search results
+  let favorites = [];     // favorite stations
+  let favUuids = new Set();
+  let activeUuid = null;  // currently playing station uuid
+
+  // --- Favorites ---
+  async function loadFavs() {
+    try {
+      const res = await fetch("/api/favs");
+      favorites = await res.json();
+      favUuids = new Set(favorites.map(f => f.stationuuid));
+      renderFavs();
+    } catch { /* ignore */ }
+  }
+
+  async function toggleFav(station) {
+    if (favUuids.has(station.stationuuid)) {
+      // Remove
+      await fetch("/api/favs/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uuid: station.stationuuid }),
+      });
+    } else {
+      // Add
+      await fetch("/api/favs/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(station),
+      });
+    }
+    await loadFavs();
+    renderSearchResults();
+  }
+
+  function renderFavs() {
+    if (!favorites.length) {
+      favSection.innerHTML = "";
+      return;
+    }
+    favSection.innerHTML =
+      '<div class="section-label">Favorites</div>' +
+      '<div class="results-list">' +
+      favorites.map((s, i) => {
+        const br = s.bitrate ? s.bitrate + "k" : "";
+        const meta = [s.country, s.codec, br].filter(Boolean).join(" / ");
+        const isActive = s.stationuuid === activeUuid;
+        const cls = isActive ? "result-row active" : "result-row";
+        return `<div class="${cls}" data-fav-idx="${i}" data-uuid="${s.stationuuid}">
+          <span class="r-num">${i + 1}</span>
+          <span class="r-name">${esc(s.name)}</span>
+          <span class="r-meta">${esc(meta)}</span>
+          <button class="r-fav is-fav" data-fav-uuid="${s.stationuuid}" title="Remove from favorites">&#9733;</button>
+        </div>`;
+      }).join("") +
+      '</div>';
+
+    // Play on row click
+    favSection.querySelectorAll(".result-row").forEach(row => {
+      row.addEventListener("click", (e) => {
+        if (e.target.closest(".r-fav")) return;
+        playStation(favorites[Number(row.dataset.favIdx)]);
+      });
+    });
+
+    // Remove on star click
+    favSection.querySelectorAll(".r-fav").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const uuid = btn.dataset.favUuid;
+        const st = favorites.find(f => f.stationuuid === uuid);
+        if (st) toggleFav(st);
+      });
+    });
+  }
 
   // --- Search ---
   async function doSearch() {
@@ -185,7 +281,7 @@
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=30`);
       stations = await res.json();
-      renderResults();
+      renderSearchResults();
     } catch (e) {
       resultsDiv.innerHTML = '<div class="empty-state">Search failed</div>';
     } finally {
@@ -197,27 +293,51 @@
   searchBtn.addEventListener("click", doSearch);
   qInput.addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
 
-  // --- Render ---
-  function renderResults() {
+  // --- Render search results ---
+  function renderSearchResults() {
     if (!stations.length) {
-      resultsDiv.innerHTML = '<div class="empty-state">No stations found</div>';
+      if (favorites.length) {
+        resultsDiv.innerHTML = "";
+      } else {
+        resultsDiv.innerHTML = '<div class="empty-state">Search for stations above</div>';
+      }
       return;
     }
-    resultsDiv.innerHTML = '<div class="results-list">' +
+    resultsDiv.innerHTML =
+      '<div class="section-label">Search Results</div>' +
+      '<div class="results-list">' +
       stations.map((s, i) => {
         const br = s.bitrate ? s.bitrate + "k" : "";
         const meta = [s.country, s.codec, br].filter(Boolean).join(" / ");
-        const cls = i === activeIdx ? "result-row active" : "result-row";
+        const isActive = s.stationuuid === activeUuid;
+        const isFav = favUuids.has(s.stationuuid);
+        const cls = isActive ? "result-row active" : "result-row";
+        const starCls = isFav ? "r-fav is-fav" : "r-fav";
+        const star = isFav ? "&#9733;" : "&#9734;";
         return `<div class="${cls}" data-idx="${i}">
           <span class="r-num">${i + 1}</span>
           <span class="r-name">${esc(s.name)}</span>
           <span class="r-meta">${esc(meta)}</span>
+          <button class="${starCls}" data-search-idx="${i}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${star}</button>
         </div>`;
       }).join("") +
       '</div>';
 
-    resultsDiv.querySelectorAll(".result-row").forEach((row) => {
-      row.addEventListener("click", () => playIdx(Number(row.dataset.idx)));
+    // Play on row click
+    resultsDiv.querySelectorAll(".result-row").forEach(row => {
+      row.addEventListener("click", (e) => {
+        if (e.target.closest(".r-fav")) return;
+        playIdx(Number(row.dataset.idx));
+      });
+    });
+
+    // Toggle fav on star click
+    resultsDiv.querySelectorAll(".r-fav").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const st = stations[Number(btn.dataset.searchIdx)];
+        if (st) toggleFav(st);
+      });
     });
   }
 
@@ -233,26 +353,46 @@
       const res = await fetch(`/api/play?i=${idx}`);
       const data = await res.json();
       if (data.ok) {
-        activeIdx = idx;
-        npTitle.textContent = data.station.name;
-        np.classList.remove("hidden");
-        pauseBtn.textContent = "⏸";
-        renderResults();
+        showNowPlaying(data.station);
       }
     } catch { /* ignore */ }
+  }
+
+  async function playStation(station) {
+    try {
+      const res = await fetch("/api/play", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ uuid: station.stationuuid, url: station.url_resolved, name: station.name }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showNowPlaying(station);
+      }
+    } catch { /* ignore */ }
+  }
+
+  function showNowPlaying(station) {
+    activeUuid = station.stationuuid;
+    npTitle.textContent = station.name;
+    np.classList.remove("hidden");
+    pauseBtn.innerHTML = "&#x23F8;";
+    renderFavs();
+    renderSearchResults();
   }
 
   // --- Controls ---
   pauseBtn.addEventListener("click", async () => {
     await fetch("/api/pause");
-    pauseBtn.textContent = pauseBtn.textContent === "⏸" ? "▶" : "⏸";
+    pauseBtn.innerHTML = pauseBtn.textContent.charCodeAt(0) === 9208 ? "&#x25B6;" : "&#x23F8;";
   });
 
   stopBtn.addEventListener("click", async () => {
     await fetch("/api/stop");
     np.classList.add("hidden");
-    activeIdx = -1;
-    renderResults();
+    activeUuid = null;
+    renderFavs();
+    renderSearchResults();
   });
 
   volSlider.addEventListener("input", async () => {
@@ -261,17 +401,20 @@
     await fetch(`/api/vol?v=${v}`);
   });
 
-  // --- Poll status on load ---
+  // --- Init: load status + favorites ---
   (async () => {
+    await loadFavs();
     try {
       const res = await fetch("/api/status");
       const s = await res.json();
       if (s.uuid) {
+        activeUuid = s.uuid;
         npTitle.textContent = s.title || s.uuid;
         np.classList.remove("hidden");
         volSlider.value = s.volume;
         volVal.textContent = s.volume;
-        pauseBtn.textContent = s.paused ? "▶" : "⏸";
+        pauseBtn.innerHTML = s.paused ? "&#x25B6;" : "&#x23F8;";
+        renderFavs();
       }
     } catch { /* server may not be ready */ }
   })();

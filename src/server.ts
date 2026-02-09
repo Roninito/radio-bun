@@ -7,6 +7,7 @@ import { serve } from "bun";
 import { RadioPlayer } from "./player.ts";
 import { clickStation, searchStations } from "./api.ts";
 import type { Station } from "./api.ts";
+import { loadFavorites, addFavorite, removeFavoriteByIndex, removeFavoriteByUuid, isFavorite } from "./favorites.ts";
 import { writeFileSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
@@ -119,6 +120,48 @@ const server = serve({
     if (path === "/api/status") {
       const s = await player.status();
       return json(s);
+    }
+
+    // ------------------- Favorites -------------------
+
+    if (path === "/api/favs" && req.method === "GET") {
+      const favs = loadFavorites();
+      return json(favs);
+    }
+
+    if (path === "/api/favs/add" && req.method === "POST") {
+      try {
+        const station = (await req.json()) as Station;
+        if (!station.stationuuid || !station.url_resolved) return err("Invalid station data");
+        const added = addFavorite(station);
+        return json({ ok: true, added, count: loadFavorites().length });
+      } catch {
+        return err("Invalid JSON body");
+      }
+    }
+
+    if (path === "/api/favs/remove" && req.method === "POST") {
+      try {
+        const body = (await req.json()) as { index?: number; uuid?: string };
+        if (typeof body.index === "number") {
+          const removed = removeFavoriteByIndex(body.index);
+          if (!removed) return err("Invalid index");
+          return json({ ok: true, removed: removed.name, count: loadFavorites().length });
+        }
+        if (body.uuid) {
+          const ok = removeFavoriteByUuid(body.uuid);
+          if (!ok) return err("Station not in favorites");
+          return json({ ok: true, count: loadFavorites().length });
+        }
+        return err("Provide 'index' or 'uuid'");
+      } catch {
+        return err("Invalid JSON body");
+      }
+    }
+
+    if (path === "/api/favs/check") {
+      const uuid = url.searchParams.get("uuid") ?? "";
+      return json({ favorite: isFavorite(uuid) });
     }
 
     // Graceful shutdown — kills MPV, removes PID file, exits
