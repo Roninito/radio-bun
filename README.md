@@ -197,6 +197,53 @@ sudo systemctl start radio-bun
 
 The HTTP API and web UI will then be available at `http://localhost:4242` at all times.
 
+### Windows (Task Scheduler)
+
+The simplest option -- no extra tools needed. This starts the daemon at login.
+
+```powershell
+# Create a scheduled task that runs at logon
+schtasks /create /tn "radio-bun" /tr "\"%USERPROFILE%\.bun\bin\radio.exe\" server" /sc onlogon /rl limited
+```
+
+To start it immediately without logging out:
+
+```powershell
+schtasks /run /tn "radio-bun"
+```
+
+To stop and remove:
+
+```powershell
+schtasks /end /tn "radio-bun"
+schtasks /delete /tn "radio-bun" /f
+```
+
+### Windows (NSSM)
+
+[NSSM](https://nssm.cc/) wraps any executable as a proper Windows service with automatic restart.
+
+Install NSSM:
+
+```powershell
+scoop install nssm
+# or: choco install nssm
+```
+
+Create the service:
+
+```powershell
+nssm install radio-bun "%USERPROFILE%\.bun\bin\bun.exe" "run" "%USERPROFILE%\radio-bun\src\server.ts"
+nssm set radio-bun AppDirectory "%USERPROFILE%\radio-bun"
+nssm set radio-bun DisplayName "radio-bun"
+nssm set radio-bun Description "Internet radio daemon (Bun + MPV)"
+nssm set radio-bun Start SERVICE_AUTO_START
+nssm start radio-bun
+```
+
+To stop: `nssm stop radio-bun`
+To remove: `nssm remove radio-bun confirm`
+
 ## How It Works
 
 1. **`radio search`** hits the [Radio-Browser](https://www.radio-browser.info/) API and caches results to `~/.radio-bun/`.
