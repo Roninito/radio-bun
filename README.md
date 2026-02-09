@@ -78,23 +78,53 @@ radio search "jazz"
 
 ## CLI Usage
 
+### Search and play
+
 ```bash
 # Search for stations
 radio search "jazz"
 radio search "bbc" --country "United Kingdom" --limit 10
+radio search "ambient" --tag "electronic"
 
 # Play a station from the last search (by number)
 radio play 1
 
-# Replay the last station (no argument needed)
+# Replay the last played station (no argument needed)
 radio play
+```
 
-# Transport controls
+### Transport controls
+
+```bash
 radio pause       # toggle pause
 radio stop        # stop playback
 radio vol 75      # set volume (0-100)
 radio status      # show what's playing
+```
 
+### Favorites
+
+```bash
+# Add station #3 from the last search to favorites
+radio add 3
+
+# Add the currently playing station to favorites
+radio add
+
+# List all favorites (numbered, just like search results)
+radio favs
+
+# Play a favorite (favs caches the list, so play picks it up)
+radio favs
+radio play 1
+
+# Remove favorite #2 from the list
+radio remove 2
+```
+
+### Daemon management
+
+```bash
 # Shut down the background daemon and MPV
 radio quit
 
@@ -103,7 +133,14 @@ radio server
 radio server --port 8080
 ```
 
-A background daemon is started automatically on your first playback command. You don't need to manage it -- `radio play` starts it, `radio quit` stops it.
+### How the daemon works
+
+A background daemon is started automatically the first time you run a playback command (`play`, `pause`, `stop`, `vol`, `status`, `add`, `favs`). You never need to manage it manually:
+
+- **`radio play`** starts the daemon if it isn't running, then returns immediately.
+- **`radio stop`** stops playback but keeps the daemon alive for the next command.
+- **`radio quit`** shuts down both the daemon and MPV entirely.
+- **`radio server`** runs the daemon in the foreground (for systemd/launchd/NSSM use).
 
 ## HTTP API
 
@@ -118,9 +155,13 @@ The daemon listens on port 4242 by default. You can also start it in the foregro
 | `/api/stop` | GET | -- | Stop playback |
 | `/api/vol` | GET | `v` (0-100) | Set volume |
 | `/api/status` | GET | -- | Current playback state |
+| `/api/favs` | GET | -- | List all favorites |
+| `/api/favs/add` | POST | Station object | Add a station to favorites |
+| `/api/favs/remove` | POST | `{ index }` or `{ uuid }` | Remove a favorite |
+| `/api/favs/check` | GET | `uuid` | Check if a station is a favorite |
 | `/api/quit` | GET | -- | Shut down daemon + MPV |
 
-A web UI is served at `http://localhost:4242`.
+A web UI is served at `http://localhost:4242`. Favorites are shown above search results with clickable star buttons to add or remove.
 
 ## Run as a system service (optional)
 
@@ -247,10 +288,11 @@ To remove: `nssm remove radio-bun confirm`
 ## How It Works
 
 1. **`radio search`** hits the [Radio-Browser](https://www.radio-browser.info/) API and caches results to `~/.radio-bun/`.
-2. **`radio play`** auto-starts a background daemon (if not already running), sends the station to it over HTTP, and returns immediately.
+2. **`radio play`** auto-starts a background daemon (if not already running), sends the station to it over HTTP, and returns immediately. Running `radio play` with no argument replays the last station.
 3. **MPV** runs once in idle/audio-only mode inside the daemon. All commands are sent over an IPC socket via `node-mpv` -- no new process per track.
-4. **`radio stop`** stops playback. **`radio quit`** shuts down the daemon and MPV entirely.
-5. **`radio server`** runs the daemon in the foreground for manual or service use. The same JSON API powers the CLI, scripts, and the built-in web UI.
+4. **Favorites** are stored in `~/.radio-bun/favorites.json`. Use `radio add` to favorite the current station (or `radio add <num>` from search results), `radio favs` to list them, and `radio remove <num>` to delete one. The web UI shows favorites above search results with star toggles.
+5. **`radio stop`** stops playback. **`radio quit`** shuts down the daemon and MPV entirely.
+6. **`radio server`** runs the daemon in the foreground for manual or service use. The same JSON API powers the CLI, scripts, and the built-in web UI.
 
 ## License
 
