@@ -16,7 +16,7 @@ const player = new RadioPlayer();
 const PORT = Number(process.env.RADIO_PORT) || 4242;
 
 // Write a PID file so the CLI can check if we're running
-const PID_DIR = join(homedir(), ".radio-bun");
+const PID_DIR = join(homedir(), ".config", "radio-bun");
 const PID_FILE = join(PID_DIR, "server.pid");
 try {
   const { mkdirSync } = await import("node:fs");
@@ -26,6 +26,9 @@ try {
 
 // In-memory cache of the last search results
 let lastSearch: Station[] = [];
+
+// Track the currently-playing station (full object) so the web UI can access it
+let currentStation: Station | null = null;
 
 const CORS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -81,6 +84,7 @@ const server = serve({
       const st = lastSearch[idx];
       await clickStation(st.stationuuid);
       await player.play(st.stationuuid, st.url_resolved, st.name);
+      currentStation = st;
       return json({ ok: true, station: st });
     }
 
@@ -94,6 +98,7 @@ const server = serve({
           clickStation(uuid).catch(() => {}); // fire-and-forget
         }
         await player.play(uuid, body.url, body.name);
+        currentStation = { stationuuid: uuid, url_resolved: body.url, name: body.name ?? "", country: "", codec: "", bitrate: 0, tags: "" } as Station;
         return json({ ok: true, name: body.name ?? null });
       } catch {
         return err("Invalid JSON body");
@@ -107,6 +112,7 @@ const server = serve({
 
     if (path === "/api/stop") {
       await player.stop();
+      currentStation = null;
       return json({ ok: true });
     }
 
@@ -119,7 +125,7 @@ const server = serve({
 
     if (path === "/api/status") {
       const s = await player.status();
-      return json(s);
+      return json({ ...s, station: currentStation });
     }
 
     // ------------------- Favorites -------------------

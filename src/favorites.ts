@@ -1,6 +1,6 @@
 // src/favorites.ts
 //
-// Persists favorite stations as full objects in ~/.radio-bun/favorites.json
+// Persists favorite stations as full objects in ~/.config/radio-bun/favorites.json
 // so they can be listed, played, and managed from CLI and web UI.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import type { Station } from "./api.ts";
 
-const DIR = join(homedir(), ".radio-bun");
+const DIR = join(homedir(), ".config", "radio-bun");
 const FAV_PATH = join(DIR, "favorites.json");
 
 function ensureDir(): void {

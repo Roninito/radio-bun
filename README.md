@@ -4,61 +4,80 @@ Internet radio CLI + HTTP control server built with Bun and MPV.
 
 Search thousands of stations, play them from the terminal, and control playback from anywhere. The CLI never locks your terminal -- a background daemon handles audio.
 
-## Install MPV
+## Quick Install (recommended)
 
-MPV is the only external dependency. Install it for your OS:
+The install scripts handle everything -- MPV, Bun, cloning the repo, and making the `radio` command available globally.
 
-### macOS (Homebrew)
-
-```bash
-brew install mpv
-```
-
-### Ubuntu / Debian
+### macOS / Linux
 
 ```bash
-sudo apt-get update && sudo apt-get install -y mpv
+curl -fsSL https://raw.githubusercontent.com/Roninito/radio-bun/main/install.sh | bash
 ```
 
-### Fedora
+Or clone first and run locally:
 
 ```bash
-sudo dnf install mpv
+git clone https://github.com/Roninito/radio-bun.git
+cd radio-bun
+./install.sh
 ```
 
-### Arch Linux
-
-```bash
-sudo pacman -S mpv
-```
-
-### Windows (Scoop)
+### Windows (PowerShell)
 
 ```powershell
-scoop install mpv
+irm https://raw.githubusercontent.com/Roninito/radio-bun/main/install.ps1 | iex
 ```
 
-### Windows (Chocolatey)
+Or clone first and run locally:
 
 ```powershell
-choco install mpv
+git clone https://github.com/Roninito/radio-bun.git
+cd radio-bun
+.\install.ps1
 ```
 
-Verify it's installed:
+> The scripts detect your OS and package manager automatically. Set `RADIO_BUN_DIR` to change the clone location (defaults to `~/radio-bun`).
+
+### Verify
 
 ```bash
-mpv --version
+radio --version
+radio search "jazz"
 ```
 
-## Install radio-bun
+---
 
-### 1. Install Bun (if you haven't already)
+## Manual Install
+
+If you prefer to install each piece yourself:
+
+### 1. Install MPV
+
+MPV is the only external dependency.
+
+| OS | Command |
+|----|---------|
+| **macOS (Homebrew)** | `brew install mpv` |
+| **Ubuntu / Debian** | `sudo apt-get update && sudo apt-get install -y mpv` |
+| **Fedora** | `sudo dnf install -y mpv` |
+| **Arch Linux** | `sudo pacman -S mpv` |
+| **Windows (Scoop)** | `scoop install mpv` |
+| **Windows (Chocolatey)** | `choco install mpv` |
+| **Windows (winget)** | `winget install mpv-player.mpv` |
+
+Verify: `mpv --version`
+
+### 2. Install Bun
 
 ```bash
+# macOS / Linux
 curl -fsSL https://bun.sh/install | bash
+
+# Windows (PowerShell)
+irm bun.sh/install.ps1 | iex
 ```
 
-### 2. Clone and install globally
+### 3. Clone and install globally
 
 ```bash
 git clone https://github.com/Roninito/radio-bun.git
@@ -68,13 +87,6 @@ bun install -g .
 ```
 
 This puts the `radio` command on your PATH (symlinked into `~/.bun/bin/`). You can now run `radio` from any directory.
-
-### 3. Verify
-
-```bash
-radio --version
-radio search "jazz"
-```
 
 ## CLI Usage
 
@@ -287,10 +299,10 @@ To remove: `nssm remove radio-bun confirm`
 
 ## How It Works
 
-1. **`radio search`** hits the [Radio-Browser](https://www.radio-browser.info/) API and caches results to `~/.radio-bun/`.
+1. **`radio search`** hits the [Radio-Browser](https://www.radio-browser.info/) API and caches results to `~/.config/radio-bun/`.
 2. **`radio play`** auto-starts a background daemon (if not already running), sends the station to it over HTTP, and returns immediately. Running `radio play` with no argument replays the last station.
 3. **MPV** runs once in idle/audio-only mode inside the daemon. All commands are sent over an IPC socket via `node-mpv` -- no new process per track.
-4. **Favorites** are stored in `~/.radio-bun/favorites.json`. Use `radio add` to favorite the current station (or `radio add <num>` from search results), `radio favs` to list them, and `radio remove <num>` to delete one. The web UI shows favorites above search results with star toggles.
+4. **Favorites** are stored in `~/.config/radio-bun/favorites.json`. Use `radio add` to favorite the current station (or `radio add <num>` from search results), `radio favs` to list them, and `radio remove <num>` to delete one. The web UI shows favorites above search results with star toggles.
 5. **`radio stop`** stops playback. **`radio quit`** shuts down the daemon and MPV entirely.
 6. **`radio server`** runs the daemon in the foreground for manual or service use. The same JSON API powers the CLI, scripts, and the built-in web UI.
 

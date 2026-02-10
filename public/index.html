@@ -5,156 +5,327 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Radio</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, sans-serif;
-      background: #0f0f0f;
-      color: #e0e0e0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #08080c;
+      color: #c8c8d0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      overflow-x: hidden;
     }
 
     header {
       width: 100%;
       max-width: 720px;
-      padding: 32px 16px 0;
+      padding: 48px 16px 8px;
       text-align: center;
     }
 
+    /* Neon title */
     header h1 {
-      font-size: 22px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      text-transform: uppercase;
       color: #fff;
+      text-shadow:
+        0 0 7px rgba(56, 189, 248, 0.8),
+        0 0 20px rgba(56, 189, 248, 0.6),
+        0 0 42px rgba(56, 189, 248, 0.4),
+        0 0 82px rgba(56, 189, 248, 0.2),
+        0 0 120px rgba(56, 189, 248, 0.1);
+      animation: neonPulse 3s ease-in-out infinite alternate;
     }
-    header p { font-size: 13px; color: #666; margin-top: 4px; }
+
+    @keyframes neonPulse {
+      0%   { text-shadow: 0 0 7px rgba(56,189,248,0.8), 0 0 20px rgba(56,189,248,0.6), 0 0 42px rgba(56,189,248,0.4), 0 0 82px rgba(56,189,248,0.2); }
+      100% { text-shadow: 0 0 10px rgba(56,189,248,1),  0 0 28px rgba(56,189,248,0.8), 0 0 55px rgba(56,189,248,0.5), 0 0 100px rgba(56,189,248,0.3), 0 0 160px rgba(56,189,248,0.15); }
+    }
+
+    header p {
+      font-size: 13px;
+      color: #4a4a5a;
+      margin-top: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* Divider line under header with glow */
+    header::after {
+      content: '';
+      display: block;
+      margin: 20px auto 0;
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+    }
 
     main {
       width: 100%;
       max-width: 720px;
-      padding: 24px 16px;
+      padding: 24px 16px 48px;
       display: flex;
       flex-direction: column;
       gap: 20px;
       flex: 1;
     }
 
-    /* Search */
+    /* ── Search ── */
     .search-bar {
       display: flex;
       gap: 8px;
     }
     .search-bar input {
       flex: 1;
-      padding: 10px 14px;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      color: #e0e0e0;
+      padding: 12px 16px;
+      background: #111118;
+      border: 1px solid #1e1e2a;
+      border-radius: 10px;
+      color: #e0e0e8;
       font-size: 14px;
+      font-family: inherit;
       outline: none;
-      transition: border-color 0.15s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .search-bar input:focus { border-color: #3b82f6; }
+    .search-bar input:focus {
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08), 0 0 20px rgba(56, 189, 248, 0.06);
+    }
+    .search-bar input::placeholder { color: #3a3a4a; }
     .search-bar button {
-      padding: 10px 20px;
-      background: #3b82f6;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
       color: #fff;
       border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .search-bar button:hover { background: #2563eb; }
-    .search-bar button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* Now Playing */
-    .now-playing {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
       border-radius: 10px;
-      padding: 16px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 2px 12px rgba(56, 189, 248, 0.2);
+    }
+    .search-bar button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+    }
+    .search-bar button:active { transform: translateY(0); }
+    .search-bar button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── Now Playing ── */
+    .now-playing {
+      background: linear-gradient(135deg, #0f1019, #13131f);
+      border: 1px solid #1c1c2e;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.4),
+        0 0 40px rgba(56, 189, 248, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      position: relative;
+      overflow: hidden;
+    }
+    .now-playing.hidden { display: none; }
+
+    /* Subtle animated glow on the left edge when playing */
+    .now-playing::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #38bdf8, #6366f1, #38bdf8);
+      background-size: 100% 200%;
+      animation: barGlow 2s ease-in-out infinite;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+      border-radius: 14px 0 0 14px;
+      z-index: 1;
+    }
+    @keyframes barGlow {
+      0%, 100% { background-position: 0% 0%; }
+      50%      { background-position: 0% 100%; }
+    }
+
+    .np-row {
       display: flex;
       align-items: center;
       gap: 16px;
+      padding: 18px 22px;
     }
-    .now-playing.hidden { display: none; }
+
     .np-info { flex: 1; min-width: 0; }
-    .np-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-    .np-title { font-size: 15px; font-weight: 500; color: #fff; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .np-label {
+      font-size: 10px;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    }
+    .np-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .np-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .np-controls button {
-      width: 36px; height: 36px;
-      background: #252525; border: 1px solid #333; border-radius: 8px;
-      color: #ccc; font-size: 16px; cursor: pointer;
+      width: 38px; height: 38px;
+      background: #16162a; border: 1px solid #252540; border-radius: 10px;
+      color: #a0a0b8; font-size: 16px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
     }
-    .np-controls button:hover { background: #333; border-color: #444; }
+    .np-controls button:hover {
+      background: #1e1e38;
+      border-color: rgba(56, 189, 248, 0.3);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
+    }
+
+    .np-fav {
+      width: 38px; height: 38px;
+      background: #16162a; border: 1px solid #252540; border-radius: 10px;
+      color: #f59e0b; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+      flex-shrink: 0;
+    }
+    .np-fav:hover {
+      background: #1e1e38;
+      border-color: rgba(245, 158, 11, 0.4);
+      transform: scale(1.1);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.15);
+    }
+    .np-fav.hidden { display: none; }
+
+    /* ── Wave visualizer (inside now-playing) ── */
+    .np-wave {
+      width: 100%;
+      position: relative;
+      background: linear-gradient(135deg, #0a0a15, #0e0e1a);
+      border-top: 1px solid rgba(30, 30, 46, 0.5);
+    }
+    .np-wave canvas {
+      display: block;
+      width: 100%;
+      height: 64px;
+    }
+    /* Reflection glow under the wave */
+    .np-wave::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.15), transparent);
+    }
 
     .volume-group { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
-    .volume-group label { font-size: 12px; color: #666; }
-    .volume-group input[type="range"] {
-      width: 80px; accent-color: #3b82f6;
-    }
-    .volume-group span { font-size: 12px; color: #888; min-width: 28px; text-align: right; }
+    .volume-group label { font-size: 11px; color: #4a4a5a; font-weight: 500; }
+    .volume-group input[type="range"] { width: 80px; accent-color: #38bdf8; }
+    .volume-group span { font-size: 11px; color: #5a5a6a; min-width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
 
-    /* Section headings */
+    /* ── Section headings ── */
     .section-label {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #555;
-      padding: 0 2px 6px;
+      letter-spacing: 1.5px;
+      color: #38384a;
+      padding: 0 2px 8px;
     }
 
-    /* Results / Favorites list */
+    /* ── Results / Favorites list ── */
     .results-list { display: flex; flex-direction: column; gap: 4px; }
     .result-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 14px;
-      background: #141414;
+      padding: 11px 16px;
+      background: #0d0d14;
       border: 1px solid transparent;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background 0.12s, border-color 0.12s;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
     }
-    .result-row:hover { background: #1c1c1c; border-color: #2a2a2a; }
-    .result-row.active { border-color: #3b82f6; background: #1a1f2e; }
+    .result-row:hover {
+      background: #111120;
+      border-color: #1e1e30;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      transform: translateY(-1px);
+    }
+    .result-row.active {
+      border-color: rgba(56, 189, 248, 0.35);
+      background: #0e1525;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.06);
+    }
 
-    .r-num { font-size: 12px; color: #555; min-width: 24px; text-align: right; }
-    .r-name { flex: 1; font-size: 14px; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .r-meta { font-size: 12px; color: #555; flex-shrink: 0; }
+    .r-num { font-size: 12px; color: #3a3a4a; min-width: 24px; text-align: right; font-variant-numeric: tabular-nums; }
+    .r-name { flex: 1; font-size: 14px; color: #d0d0da; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .r-meta { font-size: 11px; color: #3a3a4a; flex-shrink: 0; }
 
     /* Fav star button */
     .r-fav {
       background: none; border: none; cursor: pointer;
       font-size: 16px; padding: 2px 4px; line-height: 1;
-      transition: transform 0.15s;
+      transition: transform 0.15s, filter 0.15s;
       flex-shrink: 0;
     }
-    .r-fav:hover { transform: scale(1.25); }
-    .r-fav.is-fav { color: #f59e0b; }
-    .r-fav:not(.is-fav) { color: #444; }
+    .r-fav:hover { transform: scale(1.3); }
+    .r-fav.is-fav {
+      color: #f59e0b;
+      filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+    }
+    .r-fav:not(.is-fav) { color: #2a2a3a; }
+    .r-fav:not(.is-fav):hover { color: #4a4a5a; }
 
-    .empty-state { text-align: center; padding: 48px 0; color: #444; font-size: 14px; }
-    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #444; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    .empty-state {
+      text-align: center;
+      padding: 56px 0;
+      color: #2a2a3a;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid #1e1e2e;
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Background canvas ── */
+    #bgCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    header, main { position: relative; z-index: 2; }
   </style>
 </head>
 <body>
 
+<canvas id="bgCanvas"></canvas>
+
 <header>
   <h1>Radio</h1>
-  <p>Search &amp; stream internet radio stations</p>
+  <p>Stream internet radio stations</p>
 </header>
 
 <main>
@@ -164,18 +335,24 @@
   </div>
 
   <div class="now-playing hidden" id="np">
-    <div class="np-info">
-      <div class="np-label">Now Playing</div>
-      <div class="np-title" id="npTitle">--</div>
-    </div>
-    <div class="np-controls">
-      <button id="pauseBtn" title="Pause">&#x23F8;</button>
-      <button id="stopBtn" title="Stop">&#x23F9;</button>
-      <div class="volume-group">
-        <label>Vol</label>
-        <input type="range" id="volSlider" min="0" max="100" value="100" />
-        <span id="volVal">100</span>
+    <div class="np-row">
+      <div class="np-info">
+        <div class="np-label">Now Playing</div>
+        <div class="np-title" id="npTitle">--</div>
       </div>
+      <button class="np-fav hidden" id="npFavBtn" title="Add to favorites">&#9734;</button>
+      <div class="np-controls">
+        <button id="pauseBtn" title="Pause">&#x23F8;</button>
+        <button id="stopBtn" title="Stop">&#x23F9;</button>
+        <div class="volume-group">
+          <label>Vol</label>
+          <input type="range" id="volSlider" min="0" max="100" value="100" />
+          <span id="volVal">100</span>
+        </div>
+      </div>
+    </div>
+    <div class="np-wave" id="waveWrap">
+      <canvas id="waveCanvas"></canvas>
     </div>
   </div>
 
@@ -195,11 +372,16 @@
   const stopBtn = $("#stopBtn");
   const volSlider = $("#volSlider");
   const volVal = $("#volVal");
+  const npFavBtn = $("#npFavBtn");
 
-  let stations = [];      // search results
-  let favorites = [];     // favorite stations
+  let stations = [];
+  let favorites = [];
   let favUuids = new Set();
-  let activeUuid = null;  // currently playing station uuid
+  let activeUuid = null;
+  let activeStation = null;
+
+  // Wave visualizer state (read by the wave script)
+  window._wave = { playing: false, paused: false };
 
   // --- Favorites ---
   async function loadFavs() {
@@ -208,19 +390,18 @@
       favorites = await res.json();
       favUuids = new Set(favorites.map(f => f.stationuuid));
       renderFavs();
+      updateNpFavBtn();
     } catch { /* ignore */ }
   }
 
   async function toggleFav(station) {
     if (favUuids.has(station.stationuuid)) {
-      // Remove
       await fetch("/api/favs/remove", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uuid: station.stationuuid }),
       });
     } else {
-      // Add
       await fetch("/api/favs/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -253,7 +434,6 @@
       }).join("") +
       '</div>';
 
-    // Play on row click
     favSection.querySelectorAll(".result-row").forEach(row => {
       row.addEventListener("click", (e) => {
         if (e.target.closest(".r-fav")) return;
@@ -261,7 +441,6 @@
       });
     });
 
-    // Remove on star click
     favSection.querySelectorAll(".r-fav").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -271,6 +450,25 @@
       });
     });
   }
+
+  function updateNpFavBtn() {
+    if (!activeUuid || favUuids.has(activeUuid)) {
+      npFavBtn.classList.add("hidden");
+    } else {
+      npFavBtn.classList.remove("hidden");
+    }
+  }
+
+  npFavBtn.addEventListener("click", async () => {
+    if (!activeStation) return;
+    await fetch("/api/favs/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(activeStation),
+    });
+    await loadFavs();
+    renderSearchResults();
+  });
 
   // --- Search ---
   async function doSearch() {
@@ -323,7 +521,6 @@
       }).join("") +
       '</div>';
 
-    // Play on row click
     resultsDiv.querySelectorAll(".result-row").forEach(row => {
       row.addEventListener("click", (e) => {
         if (e.target.closest(".r-fav")) return;
@@ -331,7 +528,6 @@
       });
     });
 
-    // Toggle fav on star click
     resultsDiv.querySelectorAll(".r-fav").forEach(btn => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -374,9 +570,13 @@
 
   function showNowPlaying(station) {
     activeUuid = station.stationuuid;
+    activeStation = station;
     npTitle.textContent = station.name;
     np.classList.remove("hidden");
     pauseBtn.innerHTML = "&#x23F8;";
+    window._wave.playing = true;
+    window._wave.paused = false;
+    updateNpFavBtn();
     renderFavs();
     renderSearchResults();
   }
@@ -384,13 +584,18 @@
   // --- Controls ---
   pauseBtn.addEventListener("click", async () => {
     await fetch("/api/pause");
-    pauseBtn.innerHTML = pauseBtn.textContent.charCodeAt(0) === 9208 ? "&#x25B6;" : "&#x23F8;";
+    window._wave.paused = !window._wave.paused;
+    pauseBtn.innerHTML = window._wave.paused ? "&#x25B6;" : "&#x23F8;";
   });
 
   stopBtn.addEventListener("click", async () => {
     await fetch("/api/stop");
     np.classList.add("hidden");
+    window._wave.playing = false;
+    window._wave.paused = false;
     activeUuid = null;
+    activeStation = null;
+    updateNpFavBtn();
     renderFavs();
     renderSearchResults();
   });
@@ -409,15 +614,268 @@
       const s = await res.json();
       if (s.uuid) {
         activeUuid = s.uuid;
+        activeStation = s.station || { stationuuid: s.uuid, name: s.title || s.uuid, url_resolved: "", country: "", codec: "", bitrate: 0, tags: "" };
         npTitle.textContent = s.title || s.uuid;
         np.classList.remove("hidden");
         volSlider.value = s.volume;
         volVal.textContent = s.volume;
         pauseBtn.innerHTML = s.paused ? "&#x25B6;" : "&#x23F8;";
+        window._wave.playing = true;
+        window._wave.paused = !!s.paused;
+        updateNpFavBtn();
         renderFavs();
       }
     } catch { /* server may not be ready */ }
   })();
+</script>
+
+<!-- ── Wave visualizer ── -->
+<script>
+(() => {
+  const canvas = document.getElementById("waveCanvas");
+  const ctx = canvas.getContext("2d");
+  let cW = 0, cH = 0, dpr = 1;
+
+  function resizeWave() {
+    dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    if (rect.width < 1) return; // still hidden, skip
+    cW = rect.width;
+    cH = 64;
+    canvas.width = cW * dpr;
+    canvas.height = cH * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resizeWave();
+  window.addEventListener("resize", resizeWave);
+
+  // ── Wave layers ──
+  // Each wave has its own frequency, amplitude, speed, phase, and color
+  const layers = [
+    // Primary waves — thick, bright
+    { freq: 1.8,  amp: 0.28, speed: 0.8,  phase: 0,    color: [56, 189, 248], alpha: 0.5,  width: 2.5 },
+    { freq: 2.4,  amp: 0.22, speed: 1.1,  phase: 1.2,  color: [56, 189, 248], alpha: 0.35, width: 2.0 },
+    { freq: 3.2,  amp: 0.18, speed: 1.5,  phase: 2.8,  color: [99, 102, 241], alpha: 0.3,  width: 1.8 },
+    // Secondary — thinner, faster harmonics
+    { freq: 4.5,  amp: 0.12, speed: 2.0,  phase: 0.5,  color: [56, 189, 248], alpha: 0.2,  width: 1.2 },
+    { freq: 5.8,  amp: 0.09, speed: 2.6,  phase: 3.5,  color: [129, 140, 248], alpha: 0.18, width: 1.0 },
+    { freq: 7.2,  amp: 0.06, speed: 3.2,  phase: 1.8,  color: [56, 189, 248], alpha: 0.12, width: 0.8 },
+    // Ghost reflections — very subtle, wide
+    { freq: 1.2,  amp: 0.15, speed: 0.5,  phase: 4.0,  color: [99, 102, 241], alpha: 0.08, width: 3.5 },
+    { freq: 0.8,  amp: 0.10, speed: 0.35, phase: 5.2,  color: [56, 189, 248], alpha: 0.06, width: 4.0 },
+  ];
+
+  // Smooth amplitude interpolation
+  let currentAmp = 0;    // 0 = flat, 1 = full
+  let targetAmp = 0;
+
+  // Noise seed — slowly shifting random modulation for organic feel
+  let noiseTime = 0;
+  function noise(x) {
+    // Simple smooth pseudo-noise using overlapping sines
+    return Math.sin(x * 1.3) * 0.5
+         + Math.sin(x * 2.7 + 1.3) * 0.3
+         + Math.sin(x * 4.1 + 2.7) * 0.2;
+  }
+
+  function drawWave(t) {
+    const w = window._wave || {};
+    targetAmp = (w.playing && !w.paused) ? 1 : 0;
+
+    // Smooth lerp — fast rise, slow decay
+    const lerpSpeed = targetAmp > currentAmp ? 0.04 : 0.015;
+    currentAmp += (targetAmp - currentAmp) * lerpSpeed;
+    if (Math.abs(currentAmp - targetAmp) < 0.001) currentAmp = targetAmp;
+
+    noiseTime = t * 0.0003;
+
+    ctx.clearRect(0, 0, cW, cH);
+
+    if (currentAmp < 0.001) {
+      // Draw a faint center line when idle
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.04)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, cH / 2);
+      ctx.lineTo(cW, cH / 2);
+      ctx.stroke();
+      return;
+    }
+
+    const midY = cH / 2;
+    const seconds = t * 0.001;
+
+    // Draw each layer
+    for (const L of layers) {
+      ctx.beginPath();
+      ctx.lineWidth = L.width;
+
+      const [r, g, b] = L.color;
+      const a = L.alpha * currentAmp;
+
+      // Glow via shadow
+      ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${a * 0.6})`;
+      ctx.shadowBlur = 12 * currentAmp;
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+
+      const stepPx = 3;
+      for (let px = 0; px <= cW; px += stepPx) {
+        const xNorm = px / cW;   // 0..1
+
+        // Envelope — bell curve that tapers at edges
+        const env = Math.sin(xNorm * Math.PI);
+        const envSq = env * env;
+
+        // Main sine
+        const wave = Math.sin(xNorm * Math.PI * 2 * L.freq + seconds * L.speed + L.phase);
+
+        // Add organic modulation from noise
+        const nMod = noise(xNorm * 3 + seconds * L.speed * 0.3 + L.phase) * 0.4;
+
+        const y = midY + (wave + nMod) * L.amp * cH * envSq * currentAmp;
+
+        if (px === 0) ctx.moveTo(px, y);
+        else ctx.lineTo(px, y);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Center glow — a soft radial that pulses with the amplitude
+    const glowAlpha = 0.04 * currentAmp * (0.7 + 0.3 * Math.sin(seconds * 1.5));
+    const grd = ctx.createRadialGradient(cW / 2, midY, 0, cW / 2, midY, cW * 0.4);
+    grd.addColorStop(0, `rgba(56, 189, 248, ${glowAlpha})`);
+    grd.addColorStop(1, `rgba(56, 189, 248, 0)`);
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, cW, cH);
+  }
+
+  function waveFrame(t) {
+    // Re-measure if canvas was hidden when first sized
+    if (cW < 1) resizeWave();
+    drawWave(t);
+    requestAnimationFrame(waveFrame);
+  }
+  requestAnimationFrame(waveFrame);
+})();
+</script>
+
+<!-- ── Background particles & wisps ── -->
+<script>
+(() => {
+  const canvas = document.getElementById("bgCanvas");
+  const ctx = canvas.getContext("2d");
+  let W, H, dpr;
+
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  // ── Stars ──
+  const STAR_COUNT = 90;
+  const stars = Array.from({ length: STAR_COUNT }, () => ({
+    x: Math.random() * 2000,
+    y: Math.random() * 2000,
+    r: Math.random() * 1.4 + 0.3,
+    phase: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.4 + 0.2,       // twinkle speed
+    drift: (Math.random() - 0.5) * 0.08,     // slow horizontal drift
+  }));
+
+  function drawStars(t) {
+    for (const s of stars) {
+      // Reposition on resize
+      const x = ((s.x + s.drift * t * 0.01) % W + W) % W;
+      const y = s.y % H;
+
+      const twinkle = 0.35 + 0.65 * ((Math.sin(t * 0.001 * s.speed + s.phase) + 1) / 2);
+      const alpha = twinkle;
+      const glowR = s.r + 2.5 * twinkle;
+
+      // Glow
+      const g = ctx.createRadialGradient(x, y, 0, x, y, glowR);
+      g.addColorStop(0, `rgba(56, 189, 248, ${alpha * 0.7})`);
+      g.addColorStop(0.4, `rgba(56, 189, 248, ${alpha * 0.15})`);
+      g.addColorStop(1, `rgba(56, 189, 248, 0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, glowR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Core
+      ctx.fillStyle = `rgba(220, 240, 255, ${alpha * 0.9})`;
+      ctx.beginPath();
+      ctx.arc(x, y, s.r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // ── Wisps ──
+  const WISP_COUNT = 5;
+  const wisps = Array.from({ length: WISP_COUNT }, (_, i) => ({
+    x: Math.random() * 2000,
+    y: Math.random() * 2000,
+    w: Math.random() * 220 + 120,
+    h: Math.random() * 60 + 25,
+    angle: Math.random() * Math.PI * 2,
+    rotSpeed: (Math.random() - 0.5) * 0.00015,
+    driftX: (Math.random() - 0.5) * 0.12,
+    driftY: (Math.random() - 0.5) * 0.06,
+    phase: Math.random() * Math.PI * 2,
+    hue: 195 + Math.random() * 20 - 10,       // cyan-ish hue variation
+  }));
+
+  function drawWisps(t) {
+    for (const w of wisps) {
+      const cx = ((w.x + w.driftX * t * 0.01) % W + W) % W;
+      const cy = ((w.y + w.driftY * t * 0.01) % H + H) % H;
+      const angle = w.angle + w.rotSpeed * t;
+      const breathe = 0.4 + 0.6 * ((Math.sin(t * 0.0004 + w.phase) + 1) / 2);
+      const alpha = 0.025 * breathe;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
+
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, w.w * 0.5);
+      grad.addColorStop(0, `hsla(${w.hue}, 80%, 65%, ${alpha * 1.5})`);
+      grad.addColorStop(0.5, `hsla(${w.hue}, 70%, 55%, ${alpha * 0.6})`);
+      grad.addColorStop(1, `hsla(${w.hue}, 60%, 50%, 0)`);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, w.w * 0.5, w.h * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Second layer — offset wisp trail
+      const grad2 = ctx.createRadialGradient(w.w * 0.15, 0, 0, w.w * 0.15, 0, w.w * 0.35);
+      grad2.addColorStop(0, `hsla(${w.hue + 20}, 70%, 60%, ${alpha * 0.8})`);
+      grad2.addColorStop(1, `hsla(${w.hue + 20}, 60%, 50%, 0)`);
+      ctx.fillStyle = grad2;
+      ctx.beginPath();
+      ctx.ellipse(w.w * 0.15, 0, w.w * 0.35, w.h * 0.35, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+  }
+
+  // ── Render loop ──
+  function frame(t) {
+    ctx.clearRect(0, 0, W, H);
+    drawWisps(t);
+    drawStars(t);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>

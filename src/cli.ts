@@ -12,9 +12,9 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { spawn } from "node:child_process";
 
-const CACHE = join(homedir(), ".radio-bun", "last-search.json");
-const LAST_PLAYED = join(homedir(), ".radio-bun", "last-played.json");
-const CACHE_DIR = join(homedir(), ".radio-bun");
+const CACHE_DIR = join(homedir(), ".config", "radio-bun");
+const CACHE = join(CACHE_DIR, "last-search.json");
+const LAST_PLAYED = join(CACHE_DIR, "last-played.json");
 const PORT = Number(process.env.RADIO_PORT) || 4242;
 const BASE = `http://localhost:${PORT}`;
 
@@ -300,6 +300,21 @@ prog
     } else {
       console.error(data.error ?? "Failed to remove");
     }
+  });
+
+// ---------------------------------------------------
+//  VIEW  (open web UI in default browser)
+// ---------------------------------------------------
+prog
+  .command("view")
+  .description("Open the web UI in your default browser")
+  .action(async () => {
+    await ensureDaemon();
+    const url = `http://localhost:${PORT}`;
+    const { platform } = process;
+    const cmd = platform === "darwin" ? "open" : platform === "win32" ? "start" : "xdg-open";
+    spawn(cmd, [url], { detached: true, stdio: "ignore" }).unref();
+    console.log(`Opened ${url}`);
   });
 
 // ---------------------------------------------------

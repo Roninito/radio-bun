@@ -1,12 +1,12 @@
 // src/playlist.ts
 //
-// Simple JSON-file personal playlists stored at ~/.radio-bun/playlists.json
+// Simple JSON-file personal playlists stored at ~/.config/radio-bun/playlists.json
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-const DIR = join(homedir(), ".radio-bun");
+const DIR = join(homedir(), ".config", "radio-bun");
 const DB_PATH = join(DIR, "playlists.json");
 
 type Playlists = Record<string, string[]>; // name -> [stationUuid, ...]
