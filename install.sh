@@ -91,10 +91,12 @@ install_radio() {
   info "Installing dependencies..."
   (cd "$INSTALL_DIR" && bun install)
 
-  info "Installing radio CLI globally..."
-  (cd "$INSTALL_DIR" && bun install -g .)
+  info "Linking radio CLI..."
+  local radio_bin="${BUN_INSTALL:-$HOME/.bun}/bin"
+  mkdir -p "$radio_bin"
+  ln -sf "$INSTALL_DIR/src/cli.ts" "$radio_bin/radio"
 
-  ok "radio CLI installed globally"
+  ok "radio CLI linked at $radio_bin/radio"
 }
 
 # ---------- verify ----------

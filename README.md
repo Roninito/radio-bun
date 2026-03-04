@@ -16,7 +16,7 @@ Internet radio CLI + HTTP/web manager built with Bun and MPV.
 curl -fsSL https://raw.githubusercontent.com/Roninito/radio-bun/main/install.sh | bash
 ```
 
-This script installs MPV (if missing), installs Bun (if missing), clones the repo, installs dependencies, and globally installs the `radio` command.
+This script installs MPV (if missing), installs Bun (if missing), clones the repo, installs dependencies, and links the `radio` command.
 
 ### Windows (manual)
 
@@ -28,18 +28,19 @@ This script installs MPV (if missing), installs Bun (if missing), clones the rep
 git clone https://github.com/Roninito/radio-bun.git
 cd radio-bun
 bun install
-bun install -g .
+bun run src/cli.ts --help
 ```
 
-If `radio` is not recognized, add Bun's bin folder to PATH (usually `%USERPROFILE%\.bun\bin`) and restart your terminal.
+Use `bun run src/cli.ts <command>` on Windows, or add your own wrapper script if you want a `radio` command.
 
-### From source (all platforms)
+### From source (macOS/Linux)
 
 ```bash
 git clone https://github.com/Roninito/radio-bun.git
 cd radio-bun
 bun install
-bun install -g .
+mkdir -p ~/.bun/bin
+ln -sf "$(pwd)/src/cli.ts" ~/.bun/bin/radio
 ```
 
 ## Quick start

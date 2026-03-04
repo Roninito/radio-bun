@@ -1,3 +1,15 @@
+## Release Notes for v1.1.6
+
+### Installer Reliability Fix
+
+- Fixed Bun global-install failure caused by `bun install -g .` (`DependencyLoop` on Bun 1.3.9).
+- Updated `install.sh` to link the CLI at `~/.bun/bin/radio` instead of global package install.
+- Updated README install instructions:
+  - macOS/Linux: symlink-based CLI setup
+  - Windows: use `bun run src/cli.ts <command>`
+
+---
+
 ## Release Notes for v1.1.5
 
 ### Documentation and Release Consistency
