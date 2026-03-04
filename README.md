@@ -1,25 +1,23 @@
+# Radio Bun
+
+## Instructions
+
+To use Radio Bun, follow these steps:
+
+1. Install the required dependencies.
+2. Clone the repository.
+3. Run the application using your preferred method.
+
+Ensure all the paths are correctly set in your environment variables.
+
 ## Windows PATH Troubleshooting
 
-If you experience issues with running the application on Windows, this section is dedicated to troubleshooting PATH-related problems after using the Quick Install method.
+If you are encountering issues related to the PATH environment variable on Windows, follow these steps:
 
-### Automatic PATH Handling
+1. Open the Start menu and search for "Environment Variables."
+2. Click on "Edit the system environment variables."
+3. In the System Properties window, click on the "Environment Variables" button.
+4. Look for the "Path" variable in the System variables section, and edit it to ensure it includes the paths to your dependencies and application.
+5. Restart your terminal or command prompt after making changes to the PATH.
 
-During the installation process, the application should automatically manage the Windows PATH variable. This ensures that the application can be run from any command prompt or terminal window.
-
-### If Issues Persist
-
-1. **Check Installation Directory**: Ensure that the application is installed in a directory that is included in your system's PATH environment variable.
-
-2. **Manual PATH Update**: If the application is not recognized, you may need to manually add the installation directory to your PATH:
-   - Right-click on 'This PC' or 'Computer' on your desktop or in File Explorer.
-   - Select 'Properties'.
-   - Click on 'Advanced system settings'.
-   - Click on the 'Environment Variables' button.
-   - In the 'System Variables' section, find the 'PATH' variable and click 'Edit'.
-   - Add your application's installation directory to the list. Be sure to separate it from other entries with a semicolon.
-
-3. **Restart Command Prompt**: After making changes to the PATH, close and reopen any command prompt windows for the changes to take effect.
-
-4. **Reboot Your PC**: In some cases, a system reboot may be required to ensure changes are applied correctly.
-
-If you continue to encounter issues, refer to the documentation or support forums for further assistance.
+If problems persist, ensure that the paths are correct and that there are no trailing slashes or extraneous characters.
