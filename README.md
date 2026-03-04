@@ -1,23 +1,100 @@
-# Radio Bun
+# radio-bun
 
-## Instructions
+Internet radio CLI + HTTP/web manager built with Bun and MPV.
 
-To use Radio Bun, follow these steps:
+## Prerequisites
 
-1. Install the required dependencies.
-2. Clone the repository.
-3. Run the application using your preferred method.
+- [Bun](https://bun.sh/)
+- [MPV](https://mpv.io/installation/)
+- Git
 
-Ensure all the paths are correctly set in your environment variables.
+## Install
 
-## Windows PATH Troubleshooting
+### macOS / Linux (recommended)
 
-If you are encountering issues related to the PATH environment variable on Windows, follow these steps:
+```bash
+curl -fsSL https://raw.githubusercontent.com/Roninito/radio-bun/main/install.sh | bash
+```
 
-1. Open the Start menu and search for "Environment Variables."
-2. Click on "Edit the system environment variables."
-3. In the System Properties window, click on the "Environment Variables" button.
-4. Look for the "Path" variable in the System variables section, and edit it to ensure it includes the paths to your dependencies and application.
-5. Restart your terminal or command prompt after making changes to the PATH.
+This script installs MPV (if missing), installs Bun (if missing), clones the repo, installs dependencies, and globally installs the `radio` command.
 
-If problems persist, ensure that the paths are correct and that there are no trailing slashes or extraneous characters.
+### Windows (manual)
+
+1. Install Bun: https://bun.sh/docs/installation
+2. Install MPV: https://mpv.io/installation/
+3. Clone and install:
+
+```powershell
+git clone https://github.com/Roninito/radio-bun.git
+cd radio-bun
+bun install
+bun install -g .
+```
+
+If `radio` is not recognized, add Bun's bin folder to PATH (usually `%USERPROFILE%\.bun\bin`) and restart your terminal.
+
+### From source (all platforms)
+
+```bash
+git clone https://github.com/Roninito/radio-bun.git
+cd radio-bun
+bun install
+bun install -g .
+```
+
+## Quick start
+
+```bash
+radio search jazz
+radio play 1
+radio vol 60
+radio status
+radio pause
+radio stop
+```
+
+## Usage
+
+### Search and play
+
+- `radio search <term>` - search stations
+  - options: `--country <name>`, `--tag <name>`, `--limit <n>`
+- `radio play <index>` - play from the last cached search/favorites list
+- `radio play` - replay the last played station
+
+### Playback controls
+
+- `radio pause` - toggle pause
+- `radio stop` - stop playback
+- `radio vol <0-100>` - set volume
+- `radio status` - current playback status
+
+### Favorites
+
+- `radio add <index>` - add station by cached index
+- `radio add` - add currently playing station
+- `radio favs` - list favorites (and cache them for `radio play <index>`)
+- `radio remove <index>` - remove favorite by number
+
+### Daemon and web UI
+
+- `radio view` - open web UI (starts daemon automatically)
+- `radio server --port 4242` - run server in foreground
+- `radio quit` - stop daemon and MPV
+
+The daemon listens on `http://localhost:4242` by default (or `RADIO_PORT`).
+
+## Troubleshooting
+
+- **`radio` command not found:** ensure Bun global bin is on PATH (`~/.bun/bin` on macOS/Linux, `%USERPROFILE%\.bun\bin` on Windows).
+- **No audio / playback fails:** verify MPV is installed and available as `mpv` in terminal.
+- **`radio play <n>` says no cached search:** run `radio search ...` first, or `radio favs` before playing from favorites.
+
+## Development
+
+```bash
+bun install
+bun run dev      # run CLI entry directly
+bun run serve    # run HTTP server
+bun run build    # build compiled binary
+```

@@ -1,3 +1,15 @@
+## Release Notes for v1.1.5
+
+### Documentation and Release Consistency
+
+- Rewrote `README.md` with complete install and usage instructions:
+  - platform-specific install flows (macOS/Linux script + Windows manual)
+  - command reference for search, playback, favorites, daemon, and web UI
+  - quick start, troubleshooting, and development commands
+- Updated project version metadata to `1.1.5` for release alignment.
+
+---
+
 ## Release Notes for v1.1.0
 
 ### Windows PATH Management Improvements

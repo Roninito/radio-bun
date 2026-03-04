@@ -84,7 +84,7 @@ const prog = new Command();
 prog
   .name("radio")
   .description("Internet radio CLI (Bun + MPV)")
-  .version("0.1.0");
+  .version("1.1.5");
 
 // ---------------------------------------------------
 //  SEARCH  (no daemon needed — just hits Radio-Browser)

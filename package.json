@@ -1,6 +1,6 @@
 {
   "name": "radio-bun",
-  "version": "0.1.0",
+  "version": "1.1.5",
   "description": "Internet radio CLI + HTTP manager (Bun + MPV)",
   "type": "module",
   "main": "./src/cli.ts",
